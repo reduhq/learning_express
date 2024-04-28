@@ -3,6 +3,7 @@ import {Request, Response} from "express"
 // import {body, validationResult} from "express-validator"
 
 import * as AuthorService from "./author.service"
+import { body, validationResult } from "express-validator"
 
 export const authorRouter = express.Router()
 
@@ -25,6 +26,22 @@ authorRouter.get("/:id", async(request:Request, response:Response)=>{
             return response.status(200).json(author)
         }
         return response.status(404).json("Author could not be found")
+    }catch(error:any){
+        return response.status(500).json(error.message)
+    }
+})
+
+// POST: Create an author
+// Params: firstName, lastName
+authorRouter.post("/", body("firstName").isString(), body("lastName").isString(), async(request:Request, response:Response)=>{
+    const errors = validationResult(request)
+    if(!errors.isEmpty()){
+        return response.status(400).json({errors:errors.array})
+    }
+    try{
+        const author = request.body
+        const newAuthor = await AuthorService.createAuthor(author)
+        return response.status(201).json(newAuthor)
     }catch(error:any){
         return response.status(500).json(error.message)
     }
