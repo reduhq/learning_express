@@ -46,3 +46,20 @@ authorRouter.post("/", body("firstName").isString(), body("lastName").isString()
         return response.status(500).json(error.message)
     }
 })
+
+// PUT: Updating an author
+// Params: firstName, lastName
+authorRouter.put("/:id", body("firstName").isString(), body("lastName").isString(), async(request:Request, response:Response)=>{
+    const errors = validationResult(request)
+    if(!errors.isEmpty()){
+        return response.status(400).json({errors:errors.array})
+    }
+    const id:number = parseInt(request.params.id, 10)
+    try{
+        const author = request.body
+        const updatedAuthor = await AuthorService.updateAuthor(author, id)
+        return response.status(200).json(updatedAuthor)
+    }catch(error:any){
+        return response.status(500).json(error.message)
+    }
+})
